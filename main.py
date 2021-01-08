@@ -17,8 +17,8 @@ def requesttoapi(request):
         Response object using
         `make_response <http://flask.pocoo.org/docs/1.0/api/#flask.Flask.make_response>`.
     """
-    response = requests.request("GET", url, headers=headers, params=querystring)
-    respuesta = str(response.text)
+    #response = requests.request("GET", url, headers=headers, params=querystring)
+    #respuesta = str(response.text)
     request_json = request.get_json()
     print(request_json)
     if request.args and 'message' in request.args:
@@ -30,16 +30,35 @@ def requesttoapi(request):
     #    #return respuesta
     elif request_json:
         if 'url' in request_json and 'headers' in request_json and 'querystring' in request_json and 'data' in request_json:
-            respuesta = jsonify({'headers': str(request_json['headers']), "url" : request_json['url'], "querystring" : str(request_json["querystring"]), "data" : str(request_json["data"])}) 
+            url= request_json['url']
+            headers = request_json['headers']
+            querystring = request_json["querystring"]
+            data = request_json['data']
+            petition = jsonify({'headers': str(headers), "url" : url, "querystring" : str(querystring), "data" : str(data)}) 
+            response = requests.request("GET", url, headers=headers, params=querystring)
+            petition_text= petition.get_data(as_text=True)
+            received_response = str(response.text)
+            respuesta= jsonify({'petition': petition_text, 'received_response': received_response})
+            print(str(response.text))
             return respuesta 
-        if 'url' in request_json and 'headers' in request_json and 'querystring' in request_json:
-            respuesta = jsonify({'headers': str(request_json['headers']), "url" : request_json['url'], "querystring" : str(request_json["querystring"])}) 
+        elif 'url' in request_json and 'headers' in request_json and 'querystring' in request_json:
+            url= request_json['url']
+            headers = request_json['headers']
+            querystring = request_json["querystring"]            
+            response = requests.request("GET", url, headers=headers, params=querystring)
+            petition = jsonify({'headers': str(headers), "url" : url, "querystring" : str(querystring)}) 
+            #print(response.text)
+            petition_text= petition.get_data(as_text=True)
+            received_response = str(response.text)
+            respuesta= jsonify({'petition': petition_text, 'received_response': received_response})
             return respuesta 
-        if 'url' in request_json and 'headers' in request_json :
-            respuesta = jsonify({'headers': str(request_json['headers']), "url" : request_json['url']}) 
+        elif 'url' in request_json and 'headers' in request_json :
+            url= request_json['url']
+            headers = request_json['headers']
+            respuesta = jsonify({'headers': str(headers), "url" : url}) 
             return respuesta        
         elif 'url' in request_json and 'message' in request_json:
-            respuesta = jsonify({'message': str(request_json['message']), "url" : request_json['url']}) 
+            respuesta = jsonify({'message': str(request_json['message']), "url" : url}) 
             return respuesta   
     else:
         return f'Hello World!'
